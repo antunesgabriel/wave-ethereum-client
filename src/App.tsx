@@ -1,5 +1,8 @@
-import { ContractInterface, ethers } from "ethers";
+import { ethers } from "ethers";
 import { useMemo, useState, useEffect, useCallback } from "react";
+import { BsLinkedin, BsGithub } from "react-icons/bs";
+import { SpinnerInfinity } from "spinners-react";
+
 import { abi } from "./assets/abi/WavePortal.json";
 
 import "./App.css";
@@ -96,6 +99,7 @@ function App() {
     try {
       const waveTransaction = await waveProtalContract?.wave(message);
       console.info("Minerando...", waveTransaction.hash);
+      setIsLoading(true);
 
       await waveTransaction.wait();
 
@@ -105,7 +109,10 @@ function App() {
 
       setTotalWave(data.toNumber());
       getAllWaves();
+      setMessage("");
     } catch (err) {
+      setIsLoading(false);
+      setMessage("");
       console.warn((err as Error).message);
     }
   }, [message]);
@@ -115,58 +122,84 @@ function App() {
   }, [connectWallet, getAllWaves]);
 
   return (
-    <div className="mainContainer">
-      <div className="dataContainer">
-        <div className="header">👨🏽‍💻 Hi everybody!</div>
-        <div className="bio">
-          This is Gabriel Antunes! A Software Engineer and Father of Cats!
+    <div className="container">
+      {isLoading && (
+        <div className="loading-wrapper">
+          <SpinnerInfinity enabled size={80} color="#f5841e" />
         </div>
+      )}
+      <header className="header">
+        <a
+          href="https://www.linkedin.com/in/gabriel-antunes/"
+          target="_blank"
+          title="my linkedin"
+        >
+          <BsLinkedin size={20} color="#2363BC" />
+        </a>
 
-        {Boolean(currentAccount) && (
-          <input
-            className="input"
-            value={message}
-            placeholder="Type a message for me"
-            onChange={($e) => {
-              setMessage($e.target.value);
-            }}
-          />
-        )}
+        <a
+          href="https://github.com/antunesgabriel"
+          target="_blank"
+          title="my github"
+        >
+          <BsGithub size={20} color="#2E2E2E" />
+        </a>
+      </header>
+      <div className="mainContainer">
+        <div className="dataContainer">
+          <div className="header">👨🏽‍💻 Hi everybody!</div>
+          <div className="bio">
+            This is Gabriel Antunes! A Software Engineer and Father of Cats!
+          </div>
 
-        {metaMaskIsInstalled ? (
-          <button
-            className="waveButton"
-            onClick={currentAccount ? sayWave : connectWallet}
-            disabled={isLoading}
-          >
-            {currentAccount ? "Wave for me 👋🏽" : "🦊 Connect Metamask"}
-          </button>
-        ) : (
-          <a className="link" href="https://metamask.io/" target="_blank">
-            🦊 Please install Metamask to continue
-          </a>
-        )}
-
-        {Boolean(totalWave) && (
-          <div className="totalWave">Total Waves: {totalWave}</div>
-        )}
-
-        {allWaves.map((wave, index) => {
-          return (
-            <div
-              key={index}
-              style={{
-                backgroundColor: "OldLace",
-                marginTop: "16px",
-                padding: "8px",
+          {Boolean(currentAccount) && (
+            <input
+              className="input"
+              value={message}
+              placeholder="Type a message for me"
+              onChange={($e) => {
+                setMessage($e.target.value);
               }}
+            />
+          )}
+
+          {metaMaskIsInstalled ? (
+            <button
+              className="waveButton"
+              onClick={currentAccount ? sayWave : connectWallet}
+              disabled={isLoading}
             >
-              <div>Endereço: {wave.waver}</div>
-              <div>Data/Horário: {wave.timestamp}</div>
-              <div>Mensagem: {wave.message}</div>
-            </div>
-          );
-        })}
+              {currentAccount ? "Wave for me 👋🏽" : "🦊 Connect Metamask"}
+            </button>
+          ) : (
+            <a className="link" href="https://metamask.io/" target="_blank">
+              🦊 Please install Metamask to continue
+            </a>
+          )}
+
+          {Boolean(totalWave) && (
+            <div className="totalWave">Total Waves: {totalWave}</div>
+          )}
+
+          <div className="waves-container">
+            {allWaves.map((wave, index) => {
+              return (
+                <div
+                  key={index}
+                  style={{
+                    backgroundColor: "OldLace",
+                    marginTop: "16px",
+                    padding: "8px",
+                  }}
+                >
+                  <div>Endereço: {wave.waver}</div>
+                  <div>Data/Horário: {wave.timestamp}</div>
+                  <div>Mensagem: {wave.message}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );

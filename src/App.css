@@ -3,7 +3,18 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 100vh;
+  margin-top: 30px;
+  max-height: calc(100vh - 79px);
+}
+
+.header {
+  padding: 20px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .dataContainer {
@@ -17,6 +28,7 @@
   text-align: center;
   font-size: 32px;
   font-weight: 600;
+  gap: 20px;
 }
 
 .bio {
@@ -58,4 +70,40 @@
   outline: none;
   border-radius: 4px;
   margin-top: 25px;
+}
+
+.waves-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.loading-wrapper {
+  position: absolute;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 5ms forwards;
+  backdrop-filter: blur(2px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
