@@ -27,7 +27,7 @@ function App() {
     return Boolean(window.ethereum);
   }, []);
 
-  const waveProtalContract = useMemo(() => {
+  const wavePortalContract = useMemo(() => {
     if (metaMaskIsInstalled && CONTRACT_ADDRESS && CONTRACT_BIN) {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
@@ -37,13 +37,13 @@ function App() {
   }, [metaMaskIsInstalled]);
 
   const getAllWaves = useCallback(async () => {
-    if (!waveProtalContract) {
+    if (!wavePortalContract) {
       return;
     }
 
     try {
       setIsLoading(true);
-      const allWaves: Wave[] = await waveProtalContract.getAllWaves();
+      const allWaves: Wave[] = await wavePortalContract.getAllWaves();
 
       const cleaned = allWaves.map((i): Wave => {
         console.log("iutems", i);
@@ -55,6 +55,7 @@ function App() {
       });
 
       setAllWaves(cleaned);
+      setTotalWave(cleaned.length);
       setIsLoading(false);
     } catch (err) {
       console.warn("getAllWaves()", (err as Error).message);
@@ -68,7 +69,7 @@ function App() {
         throw new Error("metamask is not instaled");
       }
 
-      if (!waveProtalContract) {
+      if (!wavePortalContract) {
         return;
       }
 
@@ -86,18 +87,17 @@ function App() {
 
       setCurrentAccount((accounts as string[])[0]);
 
-      const data = await waveProtalContract?.getTotalWaves();
-
-      setTotalWave(data.toNumber());
       getAllWaves();
     } catch (err) {
       return alert(`Error ${(err as Error).message}`);
     }
-  }, [waveProtalContract, metaMaskIsInstalled, getAllWaves]);
+  }, [wavePortalContract, metaMaskIsInstalled, getAllWaves]);
 
   const sayWave = useCallback(async () => {
     try {
-      const waveTransaction = await waveProtalContract?.wave(message, { gasLimit: 300000 });
+      const waveTransaction = await wavePortalContract?.wave(message, {
+        gasLimit: 300000,
+      });
       console.info("Minerando...", waveTransaction.hash);
       setIsLoading(true);
 
@@ -105,11 +105,8 @@ function App() {
 
       console.info("Minerado...", waveTransaction.hash);
 
-      const data = await waveProtalContract?.getTotalWaves();
-
-      setTotalWave(data.toNumber());
-      getAllWaves();
       setMessage("");
+      setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
       setMessage("");
@@ -119,7 +116,34 @@ function App() {
 
   useEffect(() => {
     connectWallet();
-  }, [connectWallet, getAllWaves]);
+  }, [connectWallet]);
+
+  useEffect(() => {
+    if (wavePortalContract) {
+      const onNewWave = (
+        address: string,
+        timestamp: number,
+        message: string
+      ) => {
+        setAllWaves((old) => {
+          return [
+            ...old,
+            {
+              waver: address,
+              timestamp: new Date(timestamp * 1000).toISOString(),
+              message,
+            },
+          ];
+        });
+      };
+
+      wavePortalContract.on("NewWave", onNewWave);
+
+      return () => {
+        wavePortalContract.off("NewWave", onNewWave);
+      };
+    }
+  }, [wavePortalContract]);
 
   return (
     <div className="container">
@@ -150,6 +174,7 @@ function App() {
           <div className="header">👨🏽‍💻 Hi everybody!</div>
           <div className="bio">
             This is Gabriel Antunes! A Software Engineer and Father of Cats!
+            send me a wave and get a chance to win a 💸 gift back 🤑.
           </div>
 
           {Boolean(currentAccount) && (
