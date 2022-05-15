@@ -97,7 +97,7 @@ function App() {
 
   const sayWave = useCallback(async () => {
     try {
-      const waveTransaction = await waveProtalContract?.wave(message);
+      const waveTransaction = await waveProtalContract?.wave(message, { gasLimit: 300000 });
       console.info("Minerando...", waveTransaction.hash);
       setIsLoading(true);
 
