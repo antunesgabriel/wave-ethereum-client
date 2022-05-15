@@ -122,7 +122,7 @@ function App() {
         message: string
       ) => {
         setAllWaves((old) => {
-          return [
+          const newState = [
             ...old,
             {
               waver: address,
@@ -130,6 +130,10 @@ function App() {
               message,
             },
           ];
+
+          setTotalWave(newState.length);
+
+          return newState;
         });
       };
 
