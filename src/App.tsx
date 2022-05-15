@@ -69,10 +69,6 @@ function App() {
         throw new Error("metamask is not instaled");
       }
 
-      if (!wavePortalContract) {
-        return;
-      }
-
       const { ethereum } = window;
 
       let accounts = await ethereum.request<string[]>({
@@ -91,7 +87,7 @@ function App() {
     } catch (err) {
       return alert(`Error ${(err as Error).message}`);
     }
-  }, [wavePortalContract, metaMaskIsInstalled, getAllWaves]);
+  }, [metaMaskIsInstalled, getAllWaves]);
 
   const sayWave = useCallback(async () => {
     try {
